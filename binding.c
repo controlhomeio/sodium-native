@@ -1581,7 +1581,7 @@ napi_value sn_crypto_aead_chacha20poly1305_decrypt (napi_env env, napi_callback_
   SN_THROWS(!nsec_is_null, "nsec must always be set to null")
 
   SN_THROWS(m_size != c_size - crypto_aead_chacha20poly1305_ABYTES, "m must 'c.byteLength - crypto_aead_chacha20poly1305_ABYTES' bytes")
-  SN_ASSERT_LENGTH(n_size, crypto_aead_chacha20poly1305_NPUBBYTES, "npub")
+  SN_ASSERT_LENGTH(npub_size, crypto_aead_chacha20poly1305_NPUBBYTES, "npub")
   SN_ASSERT_LENGTH(k_size, crypto_aead_chacha20poly1305_KEYBYTES, "k")
   SN_THROWS(m_size > 0xffffffff, "m.byteLength must be a 32bit integer")
 
