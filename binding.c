@@ -1568,6 +1568,31 @@ napi_value sn_crypto_hash_sha512_final(napi_env env, napi_callback_info info) {
   SN_RETURN(crypto_hash_sha512_final(state, out_data), "failed to finalise hash")
 }
 
+napi_value sn_crypto_aead_chacha20poly1305_decrypt (napi_env env, napi_callback_info info) {
+  SN_ARGV(6, crypto_aead_chacha20poly1305_decrypt)
+
+  SN_ARGV_TYPEDARRAY(m, 0)
+  SN_ARGV_CHECK_NULL(nsec, 1)
+  SN_ARGV_TYPEDARRAY(c, 2)
+  SN_ARGV_OPTS_TYPEDARRAY(ad, 3)
+  SN_ARGV_TYPEDARRAY(npub, 4)
+  SN_ARGV_TYPEDARRAY(k, 5)
+
+  SN_THROWS(!nsec_is_null, "nsec must always be set to null")
+
+  SN_THROWS(m_size != c_size - crypto_aead_chacha20poly1305_ABYTES, "m must 'c.byteLength - crypto_aead_chacha20poly1305_ABYTES' bytes")
+  SN_ASSERT_LENGTH(n_size, crypto_aead_chacha20poly1305_NPUBBYTES, "npub")
+  SN_ASSERT_LENGTH(k_size, crypto_aead_chacha20poly1305_KEYBYTES, "k")
+  SN_THROWS(m_size > 0xffffffff, "m.byteLength must be a 32bit integer")
+
+  unsigned long long mlen;
+  SN_CALL(crypto_aead_chacha20poly1305_decrypt(m_data, &mlen, NULL, c_data, c_size, ad_data, ad_size, npub_data, k_data), "could not verify data")
+
+  napi_value result;
+  SN_STATUS_THROWS(napi_create_uint32(env, (uint32_t) mlen, &result), "")
+  return result;
+}
+
 napi_value sn_crypto_aead_xchacha20poly1305_ietf_keygen (napi_env env, napi_callback_info info) {
   SN_ARGV(1, crypto_aead_xchacha20poly1305_ietf_keygen)
 
@@ -2965,6 +2990,7 @@ static napi_value create_sodium_native(napi_env env) {
   SN_EXPORT_FUNCTION(crypto_hash_sha512_init, sn_crypto_hash_sha512_init)
   SN_EXPORT_FUNCTION(crypto_hash_sha512_update, sn_crypto_hash_sha512_update)
   SN_EXPORT_FUNCTION(crypto_hash_sha512_final, sn_crypto_hash_sha512_final)
+  SN_EXPORT_FUNCTION(crypto_aead_chacha20poly1305_decrypt, sn_crypto_aead_chacha20poly1305_decrypt)
   SN_EXPORT_FUNCTION(crypto_aead_xchacha20poly1305_ietf_keygen, sn_crypto_aead_xchacha20poly1305_ietf_keygen)
   SN_EXPORT_FUNCTION(crypto_aead_xchacha20poly1305_ietf_encrypt, sn_crypto_aead_xchacha20poly1305_ietf_encrypt)
   SN_EXPORT_FUNCTION(crypto_aead_xchacha20poly1305_ietf_decrypt, sn_crypto_aead_xchacha20poly1305_ietf_decrypt)
@@ -3096,6 +3122,9 @@ static napi_value create_sodium_native(napi_env env) {
   SN_EXPORT_UINT32(crypto_core_ed25519_NONREDUCEDSCALARBYTES, crypto_core_ed25519_NONREDUCEDSCALARBYTES)
   SN_EXPORT_UINT32(crypto_scalarmult_ed25519_BYTES, crypto_scalarmult_ed25519_BYTES)
   SN_EXPORT_UINT32(crypto_scalarmult_ed25519_SCALARBYTES, crypto_scalarmult_ed25519_SCALARBYTES)
+  SN_EXPORT_UINT32(crypto_aead_chacha20poly1305_NPUBBYTES, crypto_aead_chacha20poly1305_NPUBBYTES)
+  SN_EXPORT_UINT32(crypto_aead_chacha20poly1305_ABYTES, crypto_aead_chacha20poly1305_ABYTES)
+  SN_EXPORT_UINT32(crypto_aead_chacha20poly1305_KEYBYTES, crypto_aead_chacha20poly1305_KEYBYTES)
   SN_EXPORT_UINT32(crypto_aead_xchacha20poly1305_ietf_ABYTES, crypto_aead_xchacha20poly1305_ietf_ABYTES)
   SN_EXPORT_UINT32(crypto_aead_xchacha20poly1305_ietf_KEYBYTES, crypto_aead_xchacha20poly1305_ietf_KEYBYTES)
   SN_EXPORT_UINT32(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES, crypto_aead_xchacha20poly1305_ietf_NPUBBYTES)
